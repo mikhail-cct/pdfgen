@@ -1,0 +1,34 @@
+name: Push commit
+on:
+  workflow_call:
+  push:
+    paths:
+      - '**/slides.md'
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check changed files
+        run: |
+          git diff --name-only HEAD~1 > list.txt
+          echo "$(grep -o '\S*\.md' list.txt | cut -d '/' -f 1)" > list.txt
+          cat list.txt
+      - name: Set up Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+      - name: Install dependencies
+        run: |
+          npm install -g decktape
+      - name: Decktape
+        run: |
+          # run Decktape
+          while IFS= read -r i || [ -n "$i" ]; do decktape reveal --size 1420x800 --chrome-arg=--allow-file-access-from-files "$i"/index.html "$i".pdf; done < list.txt
+          rm list.txt
+      - name: Commit report
+        run: |
+          git add .
+          git config --global user.name 'mikhail-cct'
+          git config --global user.email 'mikhail-cct@users.noreply.github.com'
+          git commit -am "PDF generated"
+          git push
