@@ -8,6 +8,9 @@ jobs:
   report:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
       - name: Check changed files
         run: |
           git diff --name-only HEAD~1 > list.txt
