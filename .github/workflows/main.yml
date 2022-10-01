@@ -15,7 +15,7 @@ jobs:
         run: |
           git diff --name-only HEAD~1 > list.txt
           echo "$(grep -o '\S*\.md' list.txt | cut -d '/' -f 1)" > list.txt
-          cat list.txt
+          [ -s list.txt ] && cat list.txt || exit 1
       - name: Set up Node
         uses: actions/setup-node@v1
         with:
